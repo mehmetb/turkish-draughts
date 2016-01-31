@@ -38,7 +38,10 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
-        var game = new TurkishDraughts($('#game'));
+        var game = new TurkishDraughts($('#game'), {
+            cellWidth:50,
+            cellHeight:50
+        });
     });
 </script>
 </body>
