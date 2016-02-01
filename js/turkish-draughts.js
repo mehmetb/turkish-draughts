@@ -6,10 +6,11 @@ function TurkishDraughts(container, options) {
     var uid;
     var gameContainer;
     var boardObject;
-    var defaults = {
-        cellWidth:50,
-        cellHeight:50
+    var DEFAULTS = {
+        cellWidth: 50,
+        cellHeight: 50
     };
+
 
     if (!window.jQuery || !window.$) {
         throw Err("jQuery is not loaded.");
@@ -19,7 +20,9 @@ function TurkishDraughts(container, options) {
         throw Err("A jQuery object should be passed as container.");
     }
 
-    $.extend(defaults, options);
+    if (typeof options !== "object") options = {};
+
+    $.extend(options, DEFAULTS);
 
     /** Custom Error Function
      * @return {string}
@@ -61,27 +64,24 @@ function TurkishDraughts(container, options) {
         function createBoard() {
             gameContainer.empty();
 
-            for(var k=0;k<8;++k) {
-                for(var l=0;l<8;++l) {
-                    var cell = cellTemplate(k, l);
-                    cell.appendTo(gameContainer);
-                }
-            }
-
-            for(var i=0;i<8;++i) {
+            for (var i = 0; i < 8; ++i) {
                 board[i] = {};
 
-                for(var j=0;j<8;++j) {
+                for (var j = 0; j < 8; ++j) {
                     var piece = null;
+                    var cell = cellTemplate(i, j);
 
-                    if([1,2].indexOf(i)>-1) {
+                    gameContainer.append(cell);
+
+                    if ([1, 2].indexOf(i) > -1) {
                         piece = new Piece(i, j, "black");
-                    }else if([5,6].indexOf(i)>-1) {
+                    } else if ([5, 6].indexOf(i) > -1) {
                         piece = new Piece(i, j, "white");
                     }
 
                     board[i][j] = {
-                        piece:piece
+                        piece: piece,
+                        elm:cell
                     }
                 }
             }
@@ -100,16 +100,213 @@ function TurkishDraughts(container, options) {
         }
 
         function clearBoard() {
-            if(typeof board[0] === "undefined") {
+            if (typeof board[0] === "undefined") {
                 createBoard();
                 return;
             }
 
-            for(var i=0;i<8;++i) {
-                for(var j=0;j<8;++j) {
+            for (var i = 0; i < 8; ++i) {
+                for (var j = 0; j < 8; ++j) {
                     board[i][j].piece = null;
                 }
             }
+        }
+
+        function resetMovableCells() {
+            gameContainer.children(".board-cell").removeClass("movable");
+        }
+
+        /**
+         * Checks a given direction for available moves
+         * @param piece
+         * @param direction
+         * @returns {object}
+         */
+        function getPath(piece, direction) {
+            var position = piece.getPosition();
+            var paths = [];
+            var maxJump = 0;
+            var path = {
+                row: null,
+                column: null,
+                jumpCount:0,
+                jumpPath:[]
+            };
+
+
+            if(piece.isKing()) {
+
+            }else {
+                switch (direction) {
+                    case "up":
+                        if (position.row - 1 < 0) {
+                            break;
+                        }
+
+                        var nextPiece = board[position.row - 1][position.column].piece;
+
+                        if(nextPiece == null) {
+                            path.row = position.row - 1;
+                            path.column = position.column;
+                            paths.push(path);
+                        }else {
+                            var jumpPath = getJumpPathForMen(piece, "up");
+
+                            if(jumpPath.length) {
+                                path.jumpCount = jumpPath.length;
+                                path.jumpPath = jumpPath.slice();
+                                paths.push(path);
+
+                                if(maxJump < jumpPath.length) maxJump = jumpPath.length;
+                            }
+                        }
+                        break;
+
+                    case "right":
+                        if (position.column + 1 > 7) {
+                            break;
+                        }
+
+                        var nextPiece = board[position.row][position.column + 1].piece;
+
+                        if(nextPiece == null) {
+                            path.row = position.row;
+                            path.column = position.column + 1;
+                            paths.push(path);
+                        }else {
+                            var jumpPath = getJumpPathForMen(piece, "right");
+
+                            if(jumpPath.length) {
+                                path.jumpCount = jumpPath.length;
+                                path.jumpPath = jumpPath.slice();
+                                paths.push(path);
+
+                                if(maxJump < jumpPath.length) maxJump = jumpPath.length;
+                            }
+                        }
+                        break;
+
+                    case "down":
+                        if (position.row + 1 > 7) {
+                            break;
+                        }
+
+                        var nextPiece = board[position.row + 1][position.column].piece;
+
+                        if(nextPiece == null) {
+                            path.row = position.row + 1;
+                            path.column = position.column;
+                            paths.push(path);
+                        }else {
+                            var jumpPath = getJumpPathForMen(piece, "down");
+
+                            if(jumpPath.length) {
+                                path.jumpCount = jumpPath.length;
+                                path.jumpPath = jumpPath.slice();
+                                paths.push(path);
+
+                                if(maxJump < jumpPath.length) maxJump = jumpPath.length;
+                            }
+                        }
+                        break;
+
+                    case "left":
+                        if (position.column - 1 < 0) {
+                            break;
+                        }
+
+                        var nextPiece = board[position.row][position.column - 1].piece;
+
+                        if(nextPiece == null) {
+                            path.row = position.row;
+                            path.column = position.column - 1;
+                            paths.push(path);
+                        }else {
+                            var jumpPath = getJumpPathForMen(piece, "left");
+
+                            if(jumpPath.length) {
+                                path.jumpCount = jumpPath.length;
+                                path.jumpPath = jumpPath.slice();
+                                paths.push(path);
+
+                                if(maxJump < jumpPath.length) maxJump = jumpPath.length;
+                            }
+                        }
+                        break;
+                }
+            }
+
+            for(var i=0;i<paths.length;++i) {
+                if(paths[i].jumpCount < maxJump) paths.splice(i, 1);
+            }
+
+            return paths;
+        }
+
+        /**
+         * Get the jump path for the given direction (maximum jumps)
+         * @private
+         * @param piece
+         * @param dir
+         * @returns {Array}
+         */
+        function getJumpPathForMen(piece, dir) {
+            var nextPiece;
+            var jumpPath = [];
+            var position = piece.getPosition();
+
+            switch (dir) {
+                case "up":
+                    nextPiece = board[position.row - 1][position.column].piece;
+                    if(nextPiece.getColor() == piece.getColor()) break;
+                    break;
+
+                case "right":
+                    nextPiece = board[position.row][position.column + 1].piece;
+                    if(nextPiece.getColor() == piece.getColor()) break;
+                    break;
+
+                case "down":
+                    nextPiece = board[position.row + 1][position.column].piece;
+                    if(nextPiece.getColor() == piece.getColor()) break;
+                    break;
+
+                case "left":
+                    nextPiece = board[position.row][position.column - 1].piece;
+                    if(nextPiece.getColor() == piece.getColor()) break;
+                    break;
+            }
+
+            return jumpPath;
+        }
+
+        function pathToWalk(row, column) {
+            var piece = board[row][column].piece;
+            var directions;
+
+            switch (piece.getColor()) {
+                case "white":
+                    directions = ["up", "left", "right"];
+                    break;
+
+                case "black":
+                    directions = ["down", "left", "right"];
+                    break;
+            }
+
+            resetMovableCells();
+
+            for(var i=0;i<directions.length;++i) {
+                var cp = getPath(piece, directions[i]);
+
+                for(var j=0;j<cp.length;++j) {
+                    makeCellMovable(cp[j].row, cp[j].column);
+                }
+            }
+        }
+
+        function makeCellMovable(row, column) {
+            board[row][column].elm.addClass("movable");
         }
 
         function getBoard() {
@@ -117,11 +314,12 @@ function TurkishDraughts(container, options) {
         }
 
         return {
-            createBoard:createBoard,
-            movePiece:movePiece,
-            getPiece:getPiece,
-            clearBoard:clearBoard,
-            getBoard:getBoard
+            createBoard: createBoard,
+            movePiece: movePiece,
+            getPiece: getPiece,
+            clearBoard: clearBoard,
+            getBoard: getBoard,
+            pathToWalk: pathToWalk
         }
     }
 
@@ -132,13 +330,13 @@ function TurkishDraughts(container, options) {
      * @returns {*|jQuery|HTMLElement}
      */
     function cellTemplate(row, column) {
-        var cellID = "cell"+row+"_"+column;
-        var color = (row+column) % 2 ? "black" : "white";
+        var cellID = "cell" + row + "_" + column;
+        var color = (row + column) % 2 ? "black" : "white";
         var klass = "turkish_draughts board-cell " + color;
 
         return $('<div class="' + klass + '"' +
-                 'id="' + uid + '_' + cellID + '" data-row="' + row + '" ' +
-                 'data-column="' + column + '"></div>');
+            'id="' + uid + '_' + cellID + '" data-row="' + row + '" ' +
+            'data-column="' + column + '"></div>');
     }
 
     /**
@@ -150,10 +348,10 @@ function TurkishDraughts(container, options) {
         var color = clr;
         var currentRow = row;
         var currentColumn = column;
-        var queen = false;
+        var king = false;
 
-        elm.css("top", defaults.cellHeight * row +  "px");
-        elm.css("left", defaults.cellWidth * column + "px");
+        elm.css("top", options.cellHeight * row + "px");
+        elm.css("left", options.cellWidth * column + "px");
         elm.addClass(color);
         elm.bind("click", handleClick);
 
@@ -172,8 +370,8 @@ function TurkishDraughts(container, options) {
 
         function getPosition() {
             return {
-                row:currentRow,
-                column:currentColumn
+                row: currentRow,
+                column: currentColumn
             }
         }
 
@@ -182,29 +380,29 @@ function TurkishDraughts(container, options) {
             currentColumn = column;
             currentRow = row;
 
-            elm.css("top", defaults.cellHeight * currentRow +  "px");
-            elm.css("left", defaults.cellWidth * currentColumn + "px");
+            elm.css("top", options.cellHeight * currentRow + "px");
+            elm.css("left", options.cellWidth * currentColumn + "px");
         }
 
-        function setQueen() {
-            queen = true;
+        function promote() {
+            king = true;
         }
 
-        function isQueen() {
-            return queen;
+        function isKing() {
+            return king;
         }
 
         function handleClick(e) {
-
+            boardObject.pathToWalk(currentRow, currentColumn);
         }
 
         return {
-            setColor:setColor,
-            getColor:getColor,
-            setQueen:setQueen,
-            isQueen:isQueen,
-            getPosition:getPosition,
-            setPosition:setPosition
+            setColor: setColor,
+            getColor: getColor,
+            promote: promote,
+            isKing: isKing,
+            getPosition: getPosition,
+            setPosition: setPosition
         }
     }
 
