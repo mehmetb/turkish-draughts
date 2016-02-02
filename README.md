@@ -15,6 +15,6 @@ This is my hobby project which I work on weekends. I couldn't find a decent Huma
 
 You can open an issue.
 
-## Licence
+## License
 
-This software is licenced under GPL v3. Read LICENCE for more information.
+This software is licensed under GPL v3. Read LICENSE for more information.
