@@ -9,11 +9,12 @@ https://en.wikipedia.org/wiki/Turkish_draughts
 
 ## Goal
 
-This is my hobby project which I work on weekends. I couldn't find a decent Human vs Computer game on the market so I decided to try to write one.
+This is my hobby project which I work on weekends. 
 
-## Contact
+## Contribution
 
-You can open an issue.
+- You can open an issue.
+- You can create a pull request.
 
 ## License
 
