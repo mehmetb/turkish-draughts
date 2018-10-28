@@ -1,46 +1,46 @@
-.turkish_draughts.game-container {
-    background-color: #FFDD57;
-    border:1px solid black;
-    width: 400px;
-    height: 400px;
-    position: relative;
+.turkish-draughts.game-container {
+  background-color: #FFDD57;
+  border:1px solid black;
+  width: 400px;
+  height: 400px;
+  position: relative;
 }
-.turkish_draughts.board-cell {
-    float:left;
-    box-sizing: border-box;
-    width:50px;
-    height: 50px;
-}
-
-.turkish_draughts.board-cell.movable {
-    box-shadow: inset 0 0 10px #000000;
+.turkish-draughts.board-cell {
+  float:left;
+  box-sizing: border-box;
+  width:50px;
+  height: 50px;
 }
 
-.turkish_draughts.board-cell.white {
-    background-color: #e3c58d;
+.turkish-draughts.board-cell.movable {
+  box-shadow: inset 0 0 10px #000000;
 }
 
-.turkish_draughts.board-cell.black {
-    background-color: #945d22;
+.turkish-draughts.board-cell.white {
+  background-color: #e3c58d;
 }
 
-.turkish_draughts.piece {
-    width: 40px;
-    height: 40px;
-    position: absolute;
-    border-radius: 50%;
-    margin-top:5px;
-    margin-left: 5px;
+.turkish-draughts.board-cell.black {
+  background-color: #945d22;
 }
 
-.turkish_draughts.piece:hover {
-    cursor: pointer;
+.turkish-draughts.piece {
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  border-radius: 50%;
+  margin-top:5px;
+  margin-left: 5px;
 }
 
-.turkish_draughts.piece.black {
-    background-color: #000;
+.turkish-draughts.piece:hover {
+  cursor: pointer;
 }
 
-.turkish_draughts.piece.white {
-    background-color: #fff;
+.turkish-draughts.piece.black {
+  background-color: #000;
+}
+
+.turkish-draughts.piece.white {
+  background-color: #fff;
 }
